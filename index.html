@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarTorrent | Decentralized Torrent Catalog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .splash {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .logo-img {
+            width: 320px;
+            height: 320px;
+            object-fit: contain;
+        }
+
+        .enter-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 3.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 136, 0, 0.5);
+            border-radius: 8px;
+            color: #ffaa00;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .enter-btn:hover {
+            border-color: #ffaa00;
+            color: #ffcc00;
+        }
+
+        .tagline {
+            color: #ccaa88;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .logo-img { width: 220px; height: 220px; }
+            .enter-btn { padding: 0.8rem 2.5rem; font-size: 1.1rem; letter-spacing: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash">
+        <img src="img/logoST.png" alt="SolarTorrent" class="logo-img">
+        <a href="browse.html" class="enter-btn">Enter</a>
+        <div class="tagline">Decentralized Torrent Catalog on DERO</div>
+    </div>
+</body>
+</html>
