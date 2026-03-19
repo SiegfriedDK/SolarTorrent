@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarTorrent | Decentralized Torrent Catalog</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Atmospheric layers -->
+    <div class="fire-bg"></div>
+    <div class="ember-grid"></div>
+    <div class="embers">
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="solar-nav">
+        <div class="nav-brand">
+            <img src="img/logo.png" alt="SolarTorrent" class="brand-logo">
+            <span class="brand-text">SolarTorrent</span>
+        </div>
+        <div class="nav-links">
+            <a href="browse.html" class="active">Browse</a>
+            <a href="submit.html">Submit</a>
+            <a href="legal.html">Legal</a>
+        </div>
+        <div class="wallet-indicator">
+            <span class="status-dot" id="nav-status-dot"></span>
+            <span id="nav-status-text">Disconnected</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-wide">
+
+        <!-- Hero -->
+        <div class="catalog-hero">
+            <h1>Decentralized Torrent Catalog</h1>
+            <p>Browse legally distributable torrents stored immutably on the DERO blockchain. No central server. No censorship. No tracking.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-total">--</div>
+                <div class="stat-label">Total Torrents</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-approved">--</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-pending">--</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" class="solar-input" id="search-input"
+                placeholder="Search by title, hash, or description...">
+            <button class="solar-btn primary" id="btn-search">
+                <span class="btn-text">Search</span>
+            </button>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="filter-row" id="filter-row">
+            <button class="filter-chip active" data-cat="all">All</button>
+            <button class="filter-chip" data-cat="movies">Movies</button>
+            <button class="filter-chip" data-cat="tvshows">TV Shows</button>
+            <button class="filter-chip" data-cat="animes">Animes</button>
+            <button class="filter-chip" data-cat="music">Music</button>
+            <button class="filter-chip" data-cat="games">Games</button>
+            <button class="filter-chip" data-cat="ebooks">Ebooks</button>
+            <button class="filter-chip" data-cat="softwares">Softwares</button>
+            <button class="filter-chip" data-cat="other">Other</button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="catalog-grid">
+            <div class="torrent-card">
+                <div class="skeleton" style="height:16px;width:60px;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:22px;width:80%;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div>
+                <div class="skeleton" style="height:14px;width:70%;margin-bottom:16px"></div>
+                <div class="skeleton" style="height:1px;width:100%;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:12px;width:50%"></div>
+            </div>
+            <div class="torrent-card">
+                <div class="skeleton" style="height:16px;width:60px;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:22px;width:75%;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:14px;width:90%;margin-bottom:6px"></div>
+                <div class="skeleton" style="height:14px;width:55%;margin-bottom:16px"></div>
+                <div class="skeleton" style="height:1px;width:100%;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:12px;width:45%"></div>
+            </div>
+            <div class="torrent-card">
+                <div class="skeleton" style="height:16px;width:60px;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:22px;width:85%;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:14px;width:95%;margin-bottom:6px"></div>
+                <div class="skeleton" style="height:14px;width:60%;margin-bottom:16px"></div>
+                <div class="skeleton" style="height:1px;width:100%;margin-bottom:12px"></div>
+                <div class="skeleton" style="height:12px;width:55%"></div>
+            </div>
+        </div>
+
+        <!-- Catalog Grid (populated by JS) -->
+        <div id="catalog-grid" class="catalog-grid hidden"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">&#x2600;</div>
+            <p>No torrents found matching your criteria.</p>
+            <a href="submit.html" class="solar-btn primary">Submit the first torrent</a>
+        </div>
+
+        <!-- Magnet Detail Modal (inline expand) -->
+        <section id="detail-panel" class="solar-card hidden">
+            <div class="card-header">
+                <h2><span class="icon">&#x2600;</span> <span id="detail-title">Torrent Details</span></h2>
+                <div class="header-line"></div>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">InfoHash:</span>
+                        <span class="value mono" id="detail-hash">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Category:</span>
+                        <span class="value" id="detail-cat">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Size:</span>
+                        <span class="value" id="detail-size">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Description:</span>
+                        <span class="value" id="detail-desc">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Magnet Link:</span>
+                        <span class="value mono" id="detail-magnet" style="font-size:0.75rem">---</span>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-lg);display:flex;gap:var(--space-md);flex-wrap:wrap">
+                    <button class="solar-btn primary" id="btn-copy-magnet">
+                        <span class="btn-text">Copy Magnet Link</span>
+                    </button>
+                    <button class="solar-btn secondary" id="btn-close-detail">
+                        <span class="btn-text">Close</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Console -->
+    <div id="console-panel" class="console-panel collapsed">
+        <div class="console-header" id="console-toggle">
+            <span>&#x25C8; Console</span>
+            <span class="toggle-icon">&#x25B2;</span>
+        </div>
+        <div class="console-content">
+            <div id="console-output"></div>
+        </div>
+    </div>
+
+    <script>
+    /* =========================================================
+       SolarTorrent — Browse Page Logic
+       Reads catalog from DERO SC via XSWD (DERO.GetSC)
+       ========================================================= */
+
+    // SC configuration — replace with your deployed SCID
+    const CONFIG = {
+        SCID: 'YOUR_DEPLOYED_SCID_HERE',
+        NODE_RPC: 'http://127.0.0.1:20000/json_rpc',
+        XSWD_ENDPOINTS: [
+            'ws://127.0.0.1:44326/xswd',
+            'ws://127.0.0.1:10103/xswd',
+            'ws://127.0.0.1:40403/xswd'
+        ]
+    };
+
+    let allTorrents = [];
+    let activeFilter = 'all';
+    let searchQuery = '';
+
+    // --- Console logging ---
+    function clog(msg, type = 'info') {
+        const el = document.getElementById('console-output');
+        const line = document.createElement('div');
+        line.className = 'console-line ' + type;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        el.appendChild(line);
+        el.scrollTop = el.scrollHeight;
+    }
+
+    // --- Format bytes to human readable ---
+    function formatBytes(bytes) {
+        if (!bytes || bytes === 0) return 'Unknown';
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    // --- Fetch SC data via daemon RPC (works without XSWD for read-only) ---
+    async function getSCData(keys) {
+        try {
+            const resp = await fetch(CONFIG.NODE_RPC, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: '1',
+                    method: 'DERO.GetSC',
+                    params: {
+                        scid: CONFIG.SCID,
+                        code: false,
+                        variables: false,
+                        keysstring: keys
+                    }
+                })
+            });
+            const data = await resp.json();
+            if (data.result && data.result.valuesstring) {
+                return data.result.valuesstring;
+            }
+            return null;
+        } catch (err) {
+            clog('RPC Error: ' + err.message, 'error');
+            return null;
+        }
+    }
+
+    // --- Load full catalog from SC ---
+    async function loadCatalog() {
+        clog('Loading catalog from SC...');
+
+        // First, get the torrent count and approved count
+        const meta = await getSCData(['torrent_count', 'approved_count']);
+        if (!meta) {
+            clog('Failed to reach daemon RPC — showing demo data', 'warn');
+            showDemoData();
+            return;
+        }
+
+        const totalCount = parseInt(meta[0]) || 0;
+        const approvedCount = parseInt(meta[1]) || 0;
+
+        document.getElementById('stat-total').textContent = totalCount;
+        document.getElementById('stat-approved').textContent = approvedCount;
+
+        if (totalCount === 0) {
+            hideLoading();
+            showEmpty();
+            return;
+        }
+
+        allTorrents = [];
+        let pendingCount = 0;
+
+        // Fetch each torrent entry
+        for (let i = 0; i < totalCount; i++) {
+            const prefix = 't_' + i + '_';
+            const keys = [
+                prefix + 'hash', prefix + 'title', prefix + 'desc',
+                prefix + 'cat', prefix + 'lic', prefix + 'magnet',
+                prefix + 'size', prefix + 'status', prefix + 'time'
+            ];
+
+            const vals = await getSCData(keys);
+            if (vals) {
+                const status = parseInt(vals[7]) || 0;
+                if (status === 0) pendingCount++;
+                allTorrents.push({
+                    id: i,
+                    hash: vals[0] || '',
+                    title: vals[1] || 'Untitled',
+                    desc: vals[2] || '',
+                    cat: vals[3] || 'other',
+                    lic: vals[4] || '',
+                    magnet: vals[5] || '',
+                    size: parseInt(vals[6]) || 0,
+                    status: status,
+                    time: parseInt(vals[8]) || 0
+                });
+            }
+        }
+
+        document.getElementById('stat-pending').textContent = pendingCount;
+        clog(`Loaded ${allTorrents.length} entries (${approvedCount} approved, ${pendingCount} pending)`, 'success');
+        hideLoading();
+        renderGrid();
+    }
+
+    // --- Demo data for when no SC is connected ---
+    function showDemoData() {
+        allTorrents = [
+            {
+                id: 0, hash: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+                title: 'Big Buck Bunny (2008) — 4K Open Movie', desc: 'Blender Foundation open movie. Creative Commons licensed animated short film in 4K resolution.',
+                cat: 'movies', lic: 'CC-BY', magnet: 'magnet:?xt=urn:btih:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2&dn=BigBuckBunny-4K',
+                size: 5200000000, status: 1, time: 1706000000
+            },
+            {
+                id: 1, hash: 'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3',
+                title: 'Pioneer One — S01 Complete', desc: 'Award-winning CC-licensed sci-fi web series. All episodes of Season 1.',
+                cat: 'tvshows', lic: 'CC-BY-SA', magnet: 'magnet:?xt=urn:btih:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3&dn=PioneerOne-S01',
+                size: 3800000000, status: 1, time: 1706100000
+            },
+            {
+                id: 2, hash: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
+                title: 'Sintel — Blender Open Movie', desc: 'Fantasy animated short by Blender Institute. Dragon-chasing warrior story.',
+                cat: 'animes', lic: 'CC-BY', magnet: 'magnet:?xt=urn:btih:c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4&dn=Sintel-1080p',
+                size: 1400000000, status: 1, time: 1706200000
+            },
+            {
+                id: 3, hash: 'd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5',
+                title: 'Musopen — Royalty-Free Classical Music', desc: 'Curated collection of royalty-free classical music recordings. Public domain.',
+                cat: 'music', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5&dn=Musopen-Classical',
+                size: 4200000000, status: 1, time: 1706300000
+            },
+            {
+                id: 4, hash: 'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6',
+                title: 'Project Gutenberg — Top 100 Ebooks', desc: 'Collection of 100 most popular public domain books from Project Gutenberg.',
+                cat: 'ebooks', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6&dn=Gutenberg-Top100',
+                size: 520000000, status: 1, time: 1706400000
+            },
+            {
+                id: 5, hash: 'f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1',
+                title: 'Fedora 39 Workstation x86_64', desc: 'Official Fedora 39 Workstation live ISO for x86_64 architecture.',
+                cat: 'softwares', lic: 'GPL-3.0', magnet: 'magnet:?xt=urn:btih:f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1&dn=Fedora-39-Workstation',
+                size: 2100000000, status: 1, time: 1706500000
+            }
+        ];
+
+        document.getElementById('stat-total').textContent = '6';
+        document.getElementById('stat-approved').textContent = '6';
+        document.getElementById('stat-pending').textContent = '0';
+        hideLoading();
+        renderGrid();
+    }
+
+    // --- Render the catalog grid ---
+    function renderGrid() {
+        const grid = document.getElementById('catalog-grid');
+        grid.innerHTML = '';
+
+        // Filter: only show approved (status == 1)
+        let filtered = allTorrents.filter(t => t.status === 1);
+
+        // Apply category filter
+        if (activeFilter !== 'all') {
+            filtered = filtered.filter(t => t.cat === activeFilter);
+        }
+
+        // Apply search filter
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(t =>
+                t.title.toLowerCase().includes(q) ||
+                t.desc.toLowerCase().includes(q) ||
+                t.hash.toLowerCase().includes(q)
+            );
+        }
+
+        if (filtered.length === 0) {
+            showEmpty();
+            grid.classList.add('hidden');
+            return;
+        }
+
+        document.getElementById('empty-state').classList.add('hidden');
+        grid.classList.remove('hidden');
+
+        filtered.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'torrent-card';
+            card.onclick = () => showDetail(t);
+            card.innerHTML = `
+                <span class="card-cat">${t.cat}</span>
+                <h3>${escapeHtml(t.title)}</h3>
+                <p class="card-desc">${escapeHtml(t.desc)}</p>
+                <div class="card-meta">
+                    <span class="card-hash">${t.hash.substring(0, 8)}...${t.hash.substring(t.hash.length - 6)}</span>
+                    <span>${formatBytes(t.size)}</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- Show torrent detail ---
+    function showDetail(t) {
+        document.getElementById('detail-panel').classList.remove('hidden');
+        document.getElementById('detail-title').textContent = t.title;
+        document.getElementById('detail-hash').textContent = t.hash;
+        document.getElementById('detail-cat').textContent = t.cat;
+        document.getElementById('detail-size').textContent = formatBytes(t.size);
+        document.getElementById('detail-desc').textContent = t.desc;
+        document.getElementById('detail-magnet').textContent = t.magnet;
+
+        document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth' });
+
+        // Wire copy button
+        document.getElementById('btn-copy-magnet').onclick = () => {
+            navigator.clipboard.writeText(t.magnet).then(() => {
+                const btn = document.getElementById('btn-copy-magnet');
+                btn.querySelector('.btn-text').textContent = 'Copied!';
+                setTimeout(() => btn.querySelector('.btn-text').textContent = 'Copy Magnet Link', 2000);
+            });
+        };
+    }
+
+    // --- Utility ---
+    function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-state').classList.add('hidden');
+    }
+
+    function showEmpty() {
+        document.getElementById('empty-state').classList.remove('hidden');
+    }
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Console toggle
+        document.getElementById('console-toggle').addEventListener('click', () => {
+            document.getElementById('console-panel').classList.toggle('collapsed');
+        });
+
+        // Close detail
+        document.getElementById('btn-close-detail').addEventListener('click', () => {
+            document.getElementById('detail-panel').classList.add('hidden');
+        });
+
+        // Category filter chips
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                activeFilter = this.dataset.cat;
+                renderGrid();
+            });
+        });
+
+        // Search
+        document.getElementById('btn-search').addEventListener('click', () => {
+            searchQuery = document.getElementById('search-input').value.trim();
+            renderGrid();
+        });
+
+        document.getElementById('search-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchQuery = e.target.value.trim();
+                renderGrid();
+            }
+        });
+
+        // Load catalog
+        clog('SolarTorrent Browse — Initializing...');
+        loadCatalog();
+    });
+    </script>
+</body>
+</html>
