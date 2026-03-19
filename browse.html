@@ -75,12 +75,13 @@
         <!-- Category Filters -->
         <div class="filter-row" id="filter-row">
             <button class="filter-chip active" data-cat="all">All</button>
-            <button class="filter-chip" data-cat="software">Software</button>
-            <button class="filter-chip" data-cat="ebook">E-Books</button>
-            <button class="filter-chip" data-cat="audio">Audio</button>
-            <button class="filter-chip" data-cat="video">Video</button>
-            <button class="filter-chip" data-cat="dataset">Dataset</button>
-            <button class="filter-chip" data-cat="archive">Archive</button>
+            <button class="filter-chip" data-cat="movies">Movies</button>
+            <button class="filter-chip" data-cat="tvshows">TV Shows</button>
+            <button class="filter-chip" data-cat="animes">Animes</button>
+            <button class="filter-chip" data-cat="music">Music</button>
+            <button class="filter-chip" data-cat="games">Games</button>
+            <button class="filter-chip" data-cat="ebooks">Ebooks</button>
+            <button class="filter-chip" data-cat="softwares">Softwares</button>
             <button class="filter-chip" data-cat="other">Other</button>
         </div>
 
@@ -137,10 +138,6 @@
                     <div class="info-item">
                         <span class="label">Category:</span>
                         <span class="value" id="detail-cat">---</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">License:</span>
-                        <span class="value" id="detail-lic">---</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Size:</span>
@@ -313,38 +310,38 @@
         allTorrents = [
             {
                 id: 0, hash: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
-                title: 'Linux Mint 21.3 "Virginia" Cinnamon', desc: 'Official Linux Mint 21.3 Cinnamon Edition ISO image. Verified checksums.',
-                cat: 'software', lic: 'GPL-3.0', magnet: 'magnet:?xt=urn:btih:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2&dn=LinuxMint-21.3-Cinnamon',
-                size: 2800000000, status: 1, time: 1706000000
+                title: 'Big Buck Bunny (2008) — 4K Open Movie', desc: 'Blender Foundation open movie. Creative Commons licensed animated short film in 4K resolution.',
+                cat: 'movies', lic: 'CC-BY', magnet: 'magnet:?xt=urn:btih:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2&dn=BigBuckBunny-4K',
+                size: 5200000000, status: 1, time: 1706000000
             },
             {
                 id: 1, hash: 'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3',
-                title: 'Blender 4.0 — Free 3D Creation Suite', desc: 'Open-source 3D creation suite. Modeling, sculpting, animation, VFX, compositing.',
-                cat: 'software', lic: 'GPL-3.0', magnet: 'magnet:?xt=urn:btih:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3&dn=Blender-4.0',
-                size: 350000000, status: 1, time: 1706100000
+                title: 'Pioneer One — S01 Complete', desc: 'Award-winning CC-licensed sci-fi web series. All episodes of Season 1.',
+                cat: 'tvshows', lic: 'CC-BY-SA', magnet: 'magnet:?xt=urn:btih:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3&dn=PioneerOne-S01',
+                size: 3800000000, status: 1, time: 1706100000
             },
             {
                 id: 2, hash: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
-                title: 'Project Gutenberg — Top 100 Ebooks', desc: 'Collection of 100 most popular public domain books from Project Gutenberg.',
-                cat: 'ebook', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4&dn=Gutenberg-Top100',
-                size: 520000000, status: 1, time: 1706200000
+                title: 'Sintel — Blender Open Movie', desc: 'Fantasy animated short by Blender Institute. Dragon-chasing warrior story.',
+                cat: 'animes', lic: 'CC-BY', magnet: 'magnet:?xt=urn:btih:c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4&dn=Sintel-1080p',
+                size: 1400000000, status: 1, time: 1706200000
             },
             {
                 id: 3, hash: 'd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5',
-                title: 'Musopen — Royalty-Free Classical Music', desc: 'Curated collection of royalty-free classical music recordings.',
-                cat: 'audio', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5&dn=Musopen-Classical',
+                title: 'Musopen — Royalty-Free Classical Music', desc: 'Curated collection of royalty-free classical music recordings. Public domain.',
+                cat: 'music', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5&dn=Musopen-Classical',
                 size: 4200000000, status: 1, time: 1706300000
             },
             {
                 id: 4, hash: 'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6',
-                title: 'Common Crawl — January 2024 Dataset', desc: 'Web crawl data for research purposes. Petabyte-scale open dataset.',
-                cat: 'dataset', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6&dn=CommonCrawl-Jan2024',
-                size: 95000000000, status: 1, time: 1706400000
+                title: 'Project Gutenberg — Top 100 Ebooks', desc: 'Collection of 100 most popular public domain books from Project Gutenberg.',
+                cat: 'ebooks', lic: 'CC0', magnet: 'magnet:?xt=urn:btih:e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6&dn=Gutenberg-Top100',
+                size: 520000000, status: 1, time: 1706400000
             },
             {
                 id: 5, hash: 'f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1',
                 title: 'Fedora 39 Workstation x86_64', desc: 'Official Fedora 39 Workstation live ISO for x86_64 architecture.',
-                cat: 'software', lic: 'MIT', magnet: 'magnet:?xt=urn:btih:f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1&dn=Fedora-39-Workstation',
+                cat: 'softwares', lic: 'GPL-3.0', magnet: 'magnet:?xt=urn:btih:f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1&dn=Fedora-39-Workstation',
                 size: 2100000000, status: 1, time: 1706500000
             }
         ];
@@ -398,7 +395,6 @@
                 <p class="card-desc">${escapeHtml(t.desc)}</p>
                 <div class="card-meta">
                     <span class="card-hash">${t.hash.substring(0, 8)}...${t.hash.substring(t.hash.length - 6)}</span>
-                    <span class="card-license">${escapeHtml(t.lic)}</span>
                     <span>${formatBytes(t.size)}</span>
                 </div>
             `;
@@ -412,7 +408,6 @@
         document.getElementById('detail-title').textContent = t.title;
         document.getElementById('detail-hash').textContent = t.hash;
         document.getElementById('detail-cat').textContent = t.cat;
-        document.getElementById('detail-lic').textContent = t.lic;
         document.getElementById('detail-size').textContent = formatBytes(t.size);
         document.getElementById('detail-desc').textContent = t.desc;
         document.getElementById('detail-magnet').textContent = t.magnet;

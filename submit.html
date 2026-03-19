@@ -122,34 +122,19 @@
                         <span class="char-count"><span id="desc-count">0</span>/500</span>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label for="doc-license">License *</label>
-                            <select id="doc-license" class="solar-select">
-                                <option value="">Select license...</option>
-                                <option value="CC0">CC0 (Public Domain)</option>
-                                <option value="CC-BY">CC-BY (Attribution)</option>
-                                <option value="CC-BY-SA">CC-BY-SA (ShareAlike)</option>
-                                <option value="GPL-3.0">GPL-3.0</option>
-                                <option value="MIT">MIT License</option>
-                                <option value="Apache-2.0">Apache 2.0</option>
-                                <option value="Public">Public Domain</option>
-                                <option value="Other">Other (specify in description)</option>
-                            </select>
-                        </div>
-                        <div class="form-group half">
-                            <label for="doc-category">Category *</label>
-                            <select id="doc-category" class="solar-select">
-                                <option value="">Select category...</option>
-                                <option value="software">Software</option>
-                                <option value="ebook">E-Books</option>
-                                <option value="audio">Audio</option>
-                                <option value="video">Video</option>
-                                <option value="dataset">Dataset</option>
-                                <option value="archive">Archive</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="doc-category">Category *</label>
+                        <select id="doc-category" class="solar-select">
+                            <option value="">Select category...</option>
+                            <option value="movies">Movies</option>
+                            <option value="tvshows">TV Shows</option>
+                            <option value="animes">Animes</option>
+                            <option value="music">Music</option>
+                            <option value="games">Games</option>
+                            <option value="ebooks">Ebooks</option>
+                            <option value="softwares">Softwares</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -296,11 +281,10 @@
     function validateForm() {
         const title = document.getElementById('doc-title').value.trim();
         const desc = document.getElementById('doc-description').value.trim();
-        const lic = document.getElementById('doc-license').value;
         const cat = document.getElementById('doc-category').value;
         const legal = document.getElementById('legal-confirm').checked;
 
-        const valid = parsedMagnet && title && desc && lic && cat && legal;
+        const valid = parsedMagnet && title && desc && cat && legal;
         document.getElementById('btn-submit').disabled = !valid;
         return valid;
     }
@@ -393,7 +377,6 @@
 
         const title = document.getElementById('doc-title').value.trim();
         const desc = document.getElementById('doc-description').value.trim();
-        const lic = document.getElementById('doc-license').value;
         const cat = document.getElementById('doc-category').value;
         const size = parseInt(document.getElementById('doc-size').value) || 0;
 
@@ -417,7 +400,6 @@
             { name: 'title', datatype: 'S', value: title },
             { name: 'desc', datatype: 'S', value: desc },
             { name: 'cat', datatype: 'S', value: cat },
-            { name: 'lic', datatype: 'S', value: lic },
             { name: 'magnet', datatype: 'S', value: parsedMagnet.fullUri },
             { name: 'size', datatype: 'U', value: size }
         ];
@@ -529,7 +511,7 @@
         });
 
         // Form change listeners
-        ['doc-license', 'doc-category', 'legal-confirm'].forEach(id => {
+        ['doc-category', 'legal-confirm'].forEach(id => {
             document.getElementById(id).addEventListener('change', validateForm);
         });
 
