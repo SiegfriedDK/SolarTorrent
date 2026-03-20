@@ -81,9 +81,14 @@
             <a href="submit.html">Submit</a>
             <a href="legal.html">Legal</a>
         </div>
-        <div class="wallet-indicator">
-            <span class="status-dot" id="nav-status-dot"></span>
-            <span id="nav-status-text">Disconnected</span>
+        <div style="display:flex;align-items:center;gap:var(--space-md)">
+            <button class="solar-btn small" id="btn-support" style="border-color:var(--solar-gold);color:var(--solar-gold)">
+                <span class="btn-text">&#x2764; Support SolarTorrent</span>
+            </button>
+            <div class="wallet-indicator">
+                <span class="status-dot" id="nav-status-dot"></span>
+                <span id="nav-status-text">Disconnected</span>
+            </div>
         </div>
     </nav>
 
@@ -221,6 +226,9 @@
 
                 <!-- Action buttons -->
                 <div class="detail-actions">
+                    <button class="solar-btn primary" id="btn-open-magnet">
+                        <span class="btn-text">&#x25B6; Open in Client</span>
+                    </button>
                     <button class="solar-btn primary" id="btn-copy-magnet">
                         <span class="btn-text">Copy Magnet</span>
                     </button>
@@ -289,6 +297,28 @@
         </div>
     </div>
 
+    <!-- Support SolarTorrent Overlay -->
+    <div class="donate-overlay" id="support-overlay">
+        <div class="donate-box" style="border-color:var(--solar-gold)">
+            <h3>&#x2764; Support SolarTorrent</h3>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:var(--space-lg)">
+                Help keep SolarTorrent running and decentralized. Your donation goes directly to the project maintainers.
+            </p>
+            <div class="donate-row">
+                <input type="number" class="solar-input" id="support-amount" placeholder="Amount" min="0.00001" step="0.1">
+                <span class="unit">DERO</span>
+            </div>
+            <div class="donate-actions">
+                <button class="solar-btn primary" id="btn-support-confirm">
+                    <span class="btn-text">Send Support</span>
+                </button>
+                <button class="solar-btn secondary" id="btn-support-cancel">
+                    <span class="btn-text">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Console -->
     <div id="console-panel" class="console-panel collapsed">
         <div class="console-header" id="console-toggle">
@@ -309,6 +339,7 @@
     const CONFIG = {
         SCID: 'YOUR_DEPLOYED_SCID_HERE',
         NODE_RPC: 'http://127.0.0.1:20000/json_rpc',
+        SUPPORT_ADDRESS: 'YOUR_DERO_ADDRESS_HERE',  // Hidden from UI — only used in XSWD transfer
         XSWD_ENDPOINTS: [
             'ws://127.0.0.1:44326/xswd',
             'ws://127.0.0.1:10103/xswd',
@@ -643,6 +674,41 @@
         clog(`Donation of ${amount} DERO sent to uploader!`, 'success');
     }
 
+    // --- Open magnet in torrent client ---
+    function openInClient() {
+        if (!currentTorrent || !currentTorrent.magnet) return;
+        clog('Opening magnet link in torrent client...');
+        window.location.href = currentTorrent.magnet;
+    }
+
+    // --- Support SolarTorrent ---
+    function openSupportModal() {
+        document.getElementById('support-amount').value = '';
+        document.getElementById('support-overlay').classList.add('visible');
+    }
+
+    function confirmSupport() {
+        const amount = parseFloat(document.getElementById('support-amount').value);
+        if (!amount || amount <= 0) return;
+
+        document.getElementById('support-overlay').classList.remove('visible');
+        const atomicAmount = Math.round(amount * 100000);
+
+        clog(`Support SolarTorrent — ${amount} DERO (${atomicAmount} atomic)`);
+
+        /* Real XSWD call:
+        await xswd.call('transfer', {
+            ringsize: 2,
+            transfers: [{
+                destination: CONFIG.SUPPORT_ADDRESS,
+                amount: atomicAmount
+            }]
+        });
+        */
+
+        clog(`Thank you! ${amount} DERO sent to SolarTorrent project.`, 'success');
+    }
+
     // --- Utility ---
     function escapeHtml(str) {
         const d = document.createElement('div');
@@ -670,6 +736,19 @@
         document.getElementById('btn-close-detail').addEventListener('click', () => {
             document.getElementById('detail-panel').classList.add('hidden');
             currentTorrent = null;
+        });
+
+        // Open in torrent client
+        document.getElementById('btn-open-magnet').addEventListener('click', openInClient);
+
+        // Support SolarTorrent
+        document.getElementById('btn-support').addEventListener('click', openSupportModal);
+        document.getElementById('btn-support-confirm').addEventListener('click', confirmSupport);
+        document.getElementById('btn-support-cancel').addEventListener('click', () => {
+            document.getElementById('support-overlay').classList.remove('visible');
+        });
+        document.getElementById('support-overlay').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('visible');
         });
 
         // Copy magnet
