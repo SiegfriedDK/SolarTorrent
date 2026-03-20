@@ -139,6 +139,15 @@
             <button class="filter-chip" data-cat="other">Other</button>
         </div>
 
+        <!-- Sort Controls -->
+        <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-xl);font-size:0.85rem">
+            <span style="color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Sort by:</span>
+            <button class="filter-chip active" data-sort="date">Newest first</button>
+            <button class="filter-chip" data-sort="oldest">Oldest first</button>
+            <button class="filter-chip" data-sort="size-desc">Largest</button>
+            <button class="filter-chip" data-sort="size-asc">Smallest</button>
+        </div>
+
         <!-- Loading State -->
         <div id="loading-state" class="catalog-grid">
             <div class="torrent-card">
@@ -193,6 +202,10 @@
                     <div class="info-item">
                         <span class="label">Size:</span>
                         <span class="value" id="detail-size">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Uploaded:</span>
+                        <span class="value" id="detail-date">---</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Description:</span>
@@ -349,6 +362,7 @@
 
     let allTorrents = [];
     let activeFilter = 'all';
+    let activeSort = 'date';
     let searchQuery = '';
     let currentTorrent = null;
     let selectedReason = null;
@@ -369,6 +383,13 @@
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    // --- Format timestamp to date ---
+    function formatDate(timestamp) {
+        if (!timestamp || timestamp === 0) return 'Unknown';
+        const d = new Date(timestamp * 1000);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
     // --- Compute vote bar percentage ---
@@ -505,10 +526,17 @@
             );
         }
 
-        // Sort: approved first, then pending, newest first within each group
+        // Sort
         filtered.sort((a, b) => {
+            // Approved always before pending
             if (a.status !== b.status) return b.status - a.status;
-            return b.time - a.time;
+            switch (activeSort) {
+                case 'date':     return b.time - a.time;
+                case 'oldest':   return a.time - b.time;
+                case 'size-desc': return b.size - a.size;
+                case 'size-asc':  return a.size - b.size;
+                default:         return b.time - a.time;
+            }
         });
 
         if (filtered.length === 0) {
@@ -538,6 +566,7 @@
                 </div>
                 <div class="card-meta">
                     <span class="card-hash">${t.hash.substring(0,8)}...${t.hash.substring(t.hash.length-6)}</span>
+                    <span>${formatDate(t.time)}</span>
                     <span>${formatBytes(t.size)}</span>
                 </div>
             `;
@@ -555,6 +584,7 @@
         document.getElementById('detail-hash').textContent = t.hash;
         document.getElementById('detail-cat').textContent = t.cat;
         document.getElementById('detail-size').textContent = formatBytes(t.size);
+        document.getElementById('detail-date').textContent = formatDate(t.time);
         document.getElementById('detail-desc').textContent = t.desc;
         document.getElementById('detail-magnet').textContent = t.magnet;
         document.getElementById('detail-valcount').textContent = t.valcount;
@@ -798,11 +828,21 @@
         });
 
         // Category filters
-        document.querySelectorAll('.filter-chip').forEach(chip => {
+        document.querySelectorAll('.filter-chip[data-cat]').forEach(chip => {
             chip.addEventListener('click', function() {
-                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.filter-chip[data-cat]').forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
                 activeFilter = this.dataset.cat;
+                renderGrid();
+            });
+        });
+
+        // Sort controls
+        document.querySelectorAll('.filter-chip[data-sort]').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip[data-sort]').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                activeSort = this.dataset.sort;
                 renderGrid();
             });
         });

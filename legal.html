@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolarTorrent | Legal &amp; Disclaimer</title>
+    <title>SolarTorrent | Legal &amp; How It Works</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .scheme-container {
+            margin: var(--space-xl) 0;
+            padding: var(--space-lg);
+            background: var(--bg-input);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+        }
+        .scheme-container svg text { font-family: 'Rajdhani', sans-serif; }
+        .threshold-box {
+            background: linear-gradient(135deg, rgba(255, 136, 0, 0.08), rgba(255, 68, 0, 0.04));
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            margin: var(--space-md) 0;
+            display: flex;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+        }
+        .threshold-item { flex: 1; min-width: 200px; }
+        .threshold-item h4 { font-size: 0.9rem; margin-bottom: var(--space-sm); }
+        .threshold-item h4.approve { color: var(--success); }
+        .threshold-item h4.remove { color: var(--error); }
+        .threshold-item p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; }
+        .threshold-item code {
+            font-family: var(--font-mono);
+            background: rgba(255, 136, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--solar-gold);
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
 <body>
     <!-- Atmospheric layers -->
@@ -41,91 +75,218 @@
     <!-- Main Content -->
     <main class="legal-content">
 
-        <h1>Legal &amp; Disclaimer</h1>
-        <p class="subtitle">Last updated: 2026-03-19 &mdash; Effective upon deployment to DERO mainnet</p>
+        <h1>Legal, Disclaimer &amp; How It Works</h1>
+        <p class="subtitle">Last updated: 2026-03-21 &mdash; SolarTorrent v2 with community moderation</p>
 
         <div class="legal-warning">
-            <p>SolarTorrent is a decentralized, permissionless protocol. No entity controls, operates, or moderates the content indexed on-chain. Use at your own discretion and in compliance with your local jurisdiction.</p>
+            <p>SolarTorrent is a decentralized, community-moderated protocol. Content validation is performed by the community through on-chain voting &mdash; no single entity decides what stays or gets removed.</p>
         </div>
 
+        <!-- Section 1 -->
         <section class="legal-section">
             <h2><span class="section-num">1</span> Nature of the Protocol</h2>
-            <p>SolarTorrent is a decentralized application (dApp) running as a set of smart contracts on the DERO blockchain, served via the TELA standard. It functions as an on-chain catalog of magnet links &mdash; metadata pointers to content distributed via the BitTorrent protocol.</p>
-            <p>The protocol does not host, store, transmit, or distribute any files. It stores only metadata: infohash strings, titles, descriptions, category labels, license identifiers, and magnet URIs. The actual content referenced by these magnet links exists solely on the BitTorrent peer-to-peer network, entirely outside the scope of this application.</p>
+            <p>SolarTorrent is a decentralized application (dApp) running as a smart contract on the DERO blockchain, served via the TELA standard. It functions as an on-chain catalog of magnet links &mdash; metadata pointers to content distributed via the BitTorrent protocol.</p>
+            <p>The protocol does not host, store, transmit, or distribute any files. It stores only metadata: infohash strings, titles, descriptions, category labels, and magnet URIs. The actual content referenced by these magnet links exists solely on the BitTorrent peer-to-peer network, entirely outside the scope of this application.</p>
         </section>
 
+        <!-- Section 2 -->
         <section class="legal-section">
-            <h2><span class="section-num">2</span> No Central Operator</h2>
-            <p>Once deployed on the DERO blockchain, the smart contract executes autonomously according to its code. There is no central server, no company, no legal entity, and no individual operating SolarTorrent as a service. The contract owner role exists solely for anti-spam moderation of catalog entries and has no ability to alter, censor, or control the DERO blockchain itself.</p>
-            <p>The TELA standard ensures that the application code is stored immutably in TELA-DOC-1 contracts and served locally by the user's own Engram wallet &mdash; no third-party server is involved in delivering the application to the user.</p>
-        </section>
-
-        <section class="legal-section">
-            <h2><span class="section-num">3</span> User Responsibilities</h2>
-            <p>By interacting with SolarTorrent, you acknowledge and accept the following responsibilities:</p>
+            <h2><span class="section-num">2</span> Decentralized Community Moderation</h2>
+            <p>SolarTorrent uses a hybrid moderation system: content is validated or invalidated by the community through on-chain voting, with the contract owner retaining emergency removal powers only.</p>
+            <p>When a user submits a magnet link, it enters the catalog with a "Pending" status. The community then decides its fate through two actions:</p>
             <ul>
-                <li>You will only submit magnet links pointing to content that you have the legal right to distribute, or that is in the public domain, or that is licensed under an open license (Creative Commons, GPL, MIT, Apache, etc.).</li>
-                <li>You will not submit links to content that infringes copyright, contains illegal material, or violates the laws of your jurisdiction.</li>
-                <li>You understand that submitting a torrent entry requires a DERO transaction with ringsize 2, meaning your wallet address is publicly associated with the submission.</li>
-                <li>You accept that the anti-spam deposit (currently 0.1 DERO) is non-refundable if your submission is rejected by the catalog moderator.</li>
-                <li>You acknowledge that all data written to the DERO blockchain is permanent and cannot be deleted by any party, including the contract owner.</li>
+                <li><strong style="color:var(--success)">Validate</strong> &mdash; confirms the torrent matches its description and is legitimate content. Each DERO address can cast one vote per torrent.</li>
+                <li><strong style="color:var(--error)">Invalidate</strong> &mdash; flags the torrent as non-conforming. The voter must select a reason: "Doesn't match the description", "Pornography", or "Ultra violence".</li>
             </ul>
+            <p>All votes are permanently recorded on-chain with the voter's address (ringsize 2 required). Votes cannot be changed or retracted once cast.</p>
         </section>
 
+        <!-- Section 3: The Scheme -->
         <section class="legal-section">
-            <h2><span class="section-num">4</span> Magnet Links &amp; Content</h2>
+            <h2><span class="section-num">3</span> Validation &amp; Invalidation Flow</h2>
+            <p>The following diagram illustrates the complete lifecycle of a torrent submission, from deposit to community verdict:</p>
+
+            <div class="scheme-container">
+                <svg width="100%" viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Defs -->
+                    <defs>
+                        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Step 1: Submit -->
+                    <rect x="220" y="15" width="260" height="50" rx="8" fill="rgba(255,136,0,0.15)" stroke="#ff8800" stroke-width="1"/>
+                    <text x="350" y="35" text-anchor="middle" fill="#ffaa00" font-size="14" font-weight="600">User submits magnet link</text>
+                    <text x="350" y="52" text-anchor="middle" fill="#887766" font-size="11">+ 0.1 DERO anti-spam deposit</text>
+
+                    <line x1="350" y1="65" x2="350" y2="95" stroke="#ff8800" stroke-width="1" marker-end="url(#arr)"/>
+
+                    <!-- Step 2: Pending -->
+                    <rect x="220" y="97" width="260" height="40" rx="8" fill="rgba(255,204,0,0.12)" stroke="#ffcc00" stroke-width="1"/>
+                    <text x="350" y="122" text-anchor="middle" fill="#ffcc00" font-size="13" font-weight="600">Status: PENDING (visible in catalog)</text>
+
+                    <!-- Branch arrows -->
+                    <line x1="270" y1="137" x2="130" y2="180" stroke="#00ff88" stroke-width="1" marker-end="url(#arr)"/>
+                    <line x1="430" y1="137" x2="570" y2="180" stroke="#ff3366" stroke-width="1" marker-end="url(#arr)"/>
+
+                    <!-- Validate branch -->
+                    <rect x="30" y="182" width="200" height="46" rx="8" fill="rgba(0,255,136,0.1)" stroke="#00ff88" stroke-width="1"/>
+                    <text x="130" y="200" text-anchor="middle" fill="#00ff88" font-size="13" font-weight="600">Community validates</text>
+                    <text x="130" y="217" text-anchor="middle" fill="#887766" font-size="11">1 vote per address</text>
+
+                    <!-- Invalidate branch -->
+                    <rect x="470" y="182" width="200" height="46" rx="8" fill="rgba(255,51,102,0.1)" stroke="#ff3366" stroke-width="1"/>
+                    <text x="570" y="200" text-anchor="middle" fill="#ff3366" font-size="13" font-weight="600">Community invalidates</text>
+                    <text x="570" y="217" text-anchor="middle" fill="#887766" font-size="11">+ mandatory reason</text>
+
+                    <!-- Threshold arrows -->
+                    <line x1="130" y1="228" x2="130" y2="270" stroke="#00ff88" stroke-width="1" marker-end="url(#arr)"/>
+                    <line x1="570" y1="228" x2="570" y2="270" stroke="#ff3366" stroke-width="1" marker-end="url(#arr)"/>
+
+                    <!-- Approve threshold -->
+                    <rect x="20" y="272" width="220" height="60" rx="8" fill="rgba(0,255,136,0.08)" stroke="#00ff88" stroke-width="0.5" stroke-dasharray="4 3"/>
+                    <text x="130" y="292" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="600">Auto-approve threshold</text>
+                    <text x="130" y="310" text-anchor="middle" fill="#ccaa88" font-size="11">validations &gt;= 20</text>
+                    <text x="130" y="324" text-anchor="middle" fill="#ccaa88" font-size="11">AND validations &gt; 5 x invalidations</text>
+
+                    <!-- Remove threshold -->
+                    <rect x="460" y="272" width="220" height="60" rx="8" fill="rgba(255,51,102,0.08)" stroke="#ff3366" stroke-width="0.5" stroke-dasharray="4 3"/>
+                    <text x="570" y="292" text-anchor="middle" fill="#ff3366" font-size="12" font-weight="600">Auto-remove threshold</text>
+                    <text x="570" y="310" text-anchor="middle" fill="#ccaa88" font-size="11">invalidations &gt;= 10</text>
+                    <text x="570" y="324" text-anchor="middle" fill="#ccaa88" font-size="11">AND invalidations &gt; 5 x validations</text>
+
+                    <!-- Result arrows -->
+                    <line x1="130" y1="332" x2="130" y2="375" stroke="#00ff88" stroke-width="1" marker-end="url(#arr)"/>
+                    <line x1="570" y1="332" x2="570" y2="375" stroke="#ff3366" stroke-width="1" marker-end="url(#arr)"/>
+
+                    <!-- Approved result -->
+                    <rect x="30" y="377" width="200" height="50" rx="8" fill="rgba(0,255,136,0.15)" stroke="#00ff88" stroke-width="1"/>
+                    <text x="130" y="397" text-anchor="middle" fill="#00ff88" font-size="13" font-weight="600">APPROVED</text>
+                    <text x="130" y="414" text-anchor="middle" fill="#ccaa88" font-size="11">0.1 DERO refunded to submitter</text>
+
+                    <!-- Removed result -->
+                    <rect x="470" y="377" width="200" height="50" rx="8" fill="rgba(255,51,102,0.15)" stroke="#ff3366" stroke-width="1"/>
+                    <text x="570" y="397" text-anchor="middle" fill="#ff3366" font-size="13" font-weight="600">REMOVED</text>
+                    <text x="570" y="414" text-anchor="middle" fill="#ccaa88" font-size="11">0.1 DERO sent to SC owner</text>
+
+                    <!-- Owner emergency (center bottom) -->
+                    <line x1="350" y1="137" x2="350" y2="460" stroke="#887766" stroke-width="0.5" stroke-dasharray="4 4"/>
+                    <rect x="245" y="462" width="210" height="44" rx="8" fill="rgba(136,119,102,0.1)" stroke="#887766" stroke-width="0.5"/>
+                    <text x="350" y="482" text-anchor="middle" fill="#887766" font-size="12" font-weight="600">Owner emergency removal</text>
+                    <text x="350" y="498" text-anchor="middle" fill="#665544" font-size="10">Bypass — status set to 3</text>
+
+                    <!-- Labels -->
+                    <text x="200" y="165" text-anchor="middle" fill="#00ff88" font-size="10">&#x2713; Validate</text>
+                    <text x="500" y="165" text-anchor="middle" fill="#ff3366" font-size="10">&#x2717; Invalidate</text>
+                </svg>
+            </div>
+
+            <div class="threshold-box">
+                <div class="threshold-item">
+                    <h4 class="approve">Auto-Approval Conditions</h4>
+                    <p>A torrent is automatically approved when it reaches at least <code>20 validation votes</code> and the validation-to-invalidation ratio exceeds <code>5:1</code>. Upon approval, the smart contract automatically refunds the 0.1 DERO deposit to the submitter's wallet.</p>
+                </div>
+                <div class="threshold-item">
+                    <h4 class="remove">Auto-Removal Conditions</h4>
+                    <p>A torrent is automatically removed when it reaches at least <code>10 invalidation votes</code> and the invalidation-to-validation ratio exceeds <code>5:1</code>. Upon removal, the smart contract sends the 0.1 DERO deposit to the contract owner as a penalty.</p>
+                </div>
+            </div>
+
+            <p>Between these thresholds, torrents remain in "Pending" status and are visible in the catalog, allowing users to evaluate them and cast informed votes.</p>
+        </section>
+
+        <!-- Section 4 -->
+        <section class="legal-section">
+            <h2><span class="section-num">4</span> Invalidation Reasons</h2>
+            <p>When casting an invalidation vote, the voter must select one of three predefined reasons, which is permanently stored on-chain:</p>
+            <ul>
+                <li><strong style="color:var(--error)">Doesn't match the description</strong> &mdash; the actual content behind the magnet link does not correspond to the title, description, or category provided by the submitter.</li>
+                <li><strong style="color:var(--error)">Pornography</strong> &mdash; the content contains pornographic material.</li>
+                <li><strong style="color:var(--error)">Ultra violence</strong> &mdash; the content contains extreme or gratuitous violence.</li>
+            </ul>
+            <p>The smart contract enforces these as the only valid reasons. Any other value is rejected by the contract. This ensures structured, analyzable moderation data on-chain.</p>
+        </section>
+
+        <!-- Section 5 -->
+        <section class="legal-section">
+            <h2><span class="section-num">5</span> Anti-Spam Deposit</h2>
+            <p>Every submission requires a deposit of 0.1 DERO (10,000 atomic units). This deposit serves as an economic deterrent against spam and fraudulent submissions. The deposit outcome depends entirely on community voting:</p>
+            <ul>
+                <li>If the community approves the torrent, the deposit is automatically refunded to the submitter.</li>
+                <li>If the community removes the torrent, the deposit is sent to the contract owner.</li>
+                <li>While the torrent remains in "Pending" status, the deposit is held by the smart contract.</li>
+            </ul>
+            <p>The deposit amount can be adjusted by the contract owner to respond to changing network conditions or DERO value.</p>
+        </section>
+
+        <!-- Section 6 -->
+        <section class="legal-section">
+            <h2><span class="section-num">6</span> Donations</h2>
+            <p>SolarTorrent includes two donation mechanisms:</p>
+            <ul>
+                <li><strong style="color:var(--solar-gold)">Donate to uploader</strong> &mdash; any user can send DERO directly to the person who submitted a torrent. The smart contract reads the donation amount from the transaction and forwards it in full to the submitter's address. No commission is taken.</li>
+                <li><strong style="color:var(--solar-gold)">Support SolarTorrent</strong> &mdash; users can donate to the project maintainers via a dedicated button. This is a direct wallet-to-wallet transfer, independent of the smart contract.</li>
+            </ul>
+            <p>All donations are voluntary, irreversible, and recorded on the DERO blockchain.</p>
+        </section>
+
+        <!-- Section 7 -->
+        <section class="legal-section">
+            <h2><span class="section-num">7</span> Magnet Links &amp; Content</h2>
             <p>A magnet link is a URI scheme that identifies content by its cryptographic hash (infohash) rather than by the location of a specific server. Storing a magnet link on-chain is functionally equivalent to storing a hash string &mdash; it is a mathematical identifier, not a copy of the content.</p>
-            <p>SolarTorrent does not and cannot verify the actual content behind any magnet link. The metadata (title, description, license) is provided by the submitter and may not accurately represent the actual content. Users should exercise their own judgment and verify content independently before downloading.</p>
+            <p>SolarTorrent does not and cannot verify the actual content behind any magnet link. The metadata (title, description, category) is provided by the submitter and may not accurately represent the actual content. This is precisely why community validation exists &mdash; to crowdsource content verification.</p>
         </section>
 
+        <!-- Section 8 -->
         <section class="legal-section">
-            <h2><span class="section-num">5</span> Anti-Spam Mechanism</h2>
-            <p>To deter spam and low-quality submissions, a deposit of DERO is required when submitting a new catalog entry. This deposit is handled entirely by the smart contract:</p>
+            <h2><span class="section-num">8</span> Privacy &amp; Identity</h2>
+            <p>DERO is a privacy-focused blockchain using homomorphic encryption. However, all write operations on SolarTorrent (submitting, voting, donating) require ringsize 2, which means the signer's address is publicly visible for those transactions.</p>
+            <p>Read operations (browsing, searching, filtering the catalog) do not require any wallet interaction and leave no on-chain trace. The XSWD protocol ensures that private keys never leave the user's local device.</p>
+        </section>
+
+        <!-- Section 9 -->
+        <section class="legal-section">
+            <h2><span class="section-num">9</span> Immutability &amp; Blockchain Permanence</h2>
+            <p>All data written to the DERO blockchain is permanent by design. This includes torrent metadata, submitter addresses, all validation and invalidation votes with reasons, donation transactions, and status changes. The "RemoveTorrent" function changes the status flag but does not erase the underlying data. Historical states of the smart contract remain accessible to anyone running a DERO node.</p>
+        </section>
+
+        <!-- Section 10 -->
+        <section class="legal-section">
+            <h2><span class="section-num">10</span> Owner Emergency Powers</h2>
+            <p>The contract owner (the wallet that deployed the smart contract) retains limited emergency powers:</p>
             <ul>
-                <li>If the entry is approved by the moderator, the deposit is automatically refunded to the submitter's wallet via the smart contract.</li>
-                <li>If the entry is rejected, the deposit is retained by the smart contract as a fee. The moderator may withdraw accumulated fees.</li>
-                <li>The deposit amount can be adjusted by the contract owner to adapt to changing conditions.</li>
+                <li><strong>RemoveTorrent</strong> &mdash; immediately sets a torrent's status to "removed" (status 3), bypassing community voting. This is intended for extreme cases such as illegal content that requires immediate action before the community threshold is reached.</li>
+                <li><strong>SetDeposit</strong> &mdash; adjusts the anti-spam deposit amount.</li>
+                <li><strong>Withdraw</strong> &mdash; withdraws accumulated penalty fees from the smart contract.</li>
+                <li><strong>TransferOwnership</strong> &mdash; transfers the owner role to another DERO address.</li>
+                <li><strong>UpdateCode</strong> &mdash; updates the smart contract code (for bug fixes and feature additions).</li>
             </ul>
+            <p>The owner cannot modify or delete votes, alter torrent metadata, or interfere with the community moderation thresholds. These are hardcoded in the smart contract logic.</p>
         </section>
 
+        <!-- Section 11 -->
         <section class="legal-section">
-            <h2><span class="section-num">6</span> Immutability &amp; Blockchain Permanence</h2>
-            <p>All data written to the DERO blockchain is permanent by design. This includes:</p>
-            <ul>
-                <li>Torrent metadata (hash, title, description, magnet link)</li>
-                <li>Submitter wallet addresses</li>
-                <li>Approval/rejection status</li>
-                <li>Transaction history</li>
-            </ul>
-            <p>The "RemoveTorrent" function changes the status flag of an entry to "removed" but does not delete the underlying data from the blockchain. Historical states of the smart contract remain accessible to anyone running a DERO node.</p>
+            <h2><span class="section-num">11</span> No Warranty</h2>
+            <p>SolarTorrent is provided "as is" without warranty of any kind. The developers make no representations regarding the accuracy of catalog entries, the availability of the DERO network, or the security of the smart contract code. Use is entirely at your own risk.</p>
         </section>
 
+        <!-- Section 12 -->
         <section class="legal-section">
-            <h2><span class="section-num">7</span> Privacy Considerations</h2>
-            <p>DERO is a privacy-focused blockchain using homomorphic encryption. However, interactions with SolarTorrent require ringsize 2 for write operations (submit, approve, reject), which means the signer's address is publicly visible for those transactions. Read operations (browsing the catalog) do not require any wallet interaction and leave no on-chain trace.</p>
-            <p>The XSWD protocol ensures that your wallet's private keys never leave your local device. SolarTorrent only communicates with your wallet through permissioned WebSocket calls that you explicitly approve in Engram.</p>
+            <h2><span class="section-num">12</span> Open Source &amp; Auditability</h2>
+            <p>The smart contract code is publicly auditable on the DERO blockchain by anyone running a node. The frontend application is stored immutably in TELA-DOC-1 contracts. All logic governing validation, invalidation, deposits, and donations is transparently verifiable on-chain. Code is law.</p>
         </section>
 
+        <!-- Section 13 -->
         <section class="legal-section">
-            <h2><span class="section-num">8</span> No Warranty</h2>
-            <p>SolarTorrent is provided "as is" without warranty of any kind, express or implied. The developers make no representations or warranties regarding the accuracy, completeness, or reliability of the catalog entries, the availability of the DERO network, or the security of the smart contract code.</p>
-            <p>Use of SolarTorrent is entirely at your own risk. The developers shall not be liable for any damages arising from the use or inability to use this application.</p>
-        </section>
-
-        <section class="legal-section">
-            <h2><span class="section-num">9</span> Open Source</h2>
-            <p>The SolarTorrent smart contract code, frontend application, and all associated files are open source. The smart contract code is publicly auditable on the DERO blockchain by anyone running a node. The frontend code is stored immutably in TELA-DOC-1 contracts and can be inspected by retrieving the relevant SCIDs.</p>
-        </section>
-
-        <section class="legal-section">
-            <h2><span class="section-num">10</span> Governing Law</h2>
-            <p>SolarTorrent is a decentralized protocol with no geographic jurisdiction. Users are solely responsible for ensuring their use of this application complies with the laws and regulations of their own jurisdiction. If the use of decentralized torrent catalogs is prohibited in your jurisdiction, do not use this application.</p>
+            <h2><span class="section-num">13</span> Governing Law</h2>
+            <p>SolarTorrent is a decentralized protocol with no geographic jurisdiction. Users are solely responsible for ensuring their use complies with the laws of their own jurisdiction. If the use of decentralized torrent catalogs is prohibited where you live, do not use this application.</p>
         </section>
 
         <div class="solar-card" style="text-align:center; margin-top: var(--space-2xl)">
             <div class="card-content">
                 <p class="info-text" style="margin-bottom: var(--space-md)">
-                    Built with TELA on the DERO blockchain. Code is law. Verify, don't trust.
+                    Built with TELA on the DERO blockchain. Community-moderated. Code is law. Verify, don't trust.
                 </p>
                 <div style="display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
                     <a href="browse.html" class="solar-btn primary">
