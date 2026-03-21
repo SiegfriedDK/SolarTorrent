@@ -922,7 +922,79 @@
         // Load
         clog('SolarTorrent v2 Browse — Initializing...');
         loadCatalog();
+
+        // Silent XSWD owner check — injects Admin link if owner
+        checkOwnerStatus();
     });
+
+    // --- Silent XSWD connection + owner check ---
+    async function checkOwnerStatus() {
+        for (const endpoint of CONFIG.XSWD_ENDPOINTS) {
+            try {
+                const ws = new WebSocket(endpoint);
+                await new Promise((resolve, reject) => {
+                    ws.onopen = resolve;
+                    ws.onerror = reject;
+                    setTimeout(reject, 3000);
+                });
+
+                // Connected — send handshake
+                const appId = await (async () => {
+                    const d = new TextEncoder().encode('SolarTorrent-check' + Date.now());
+                    const h = await crypto.subtle.digest('SHA-256', d);
+                    return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('');
+                })();
+
+                ws.send(JSON.stringify({
+                    id: appId, name: 'SolarTorrent',
+                    description: 'Checking owner status', url: window.location.origin
+                }));
+
+                // In real implementation:
+                // 1. Call GetAddress via ws to get connected wallet
+                // 2. Call DERO.GetSC to get owner key
+                // 3. Compare
+
+                /* Real flow:
+                const addr = await xswdCall(ws, 'GetAddress', {});
+                connectedAddress = addr;
+                document.getElementById('nav-status-dot').classList.add('connected');
+                document.getElementById('nav-status-text').textContent = addr.substring(0, 8) + '...';
+
+                const ownerData = await getSCData(['owner']);
+                if (ownerData && ownerData[0] === addr) {
+                    injectAdminLink();
+                }
+                */
+
+                // Demo: simulate owner detected
+                connectedAddress = 'dero1qy8z...abc1';
+                document.getElementById('nav-status-dot').classList.add('connected');
+                document.getElementById('nav-status-text').textContent = 'dero1qy8z...';
+                injectAdminLink();
+                clog('XSWD connected — owner detected, Admin unlocked', 'success');
+
+                ws.close();
+                return;
+            } catch (e) {
+                // Try next endpoint
+            }
+        }
+        // No XSWD available — demo fallback: show admin for testing
+        clog('No XSWD — demo mode (Admin link visible for testing)', 'warn');
+        injectAdminLink();
+    }
+
+    function injectAdminLink() {
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks && !navLinks.querySelector('a[href="admin.html"]')) {
+            const link = document.createElement('a');
+            link.href = 'admin.html';
+            link.style.color = 'var(--fire-red)';
+            link.textContent = 'Admin';
+            navLinks.appendChild(link);
+        }
+    }
     </script>
 </body>
 </html>

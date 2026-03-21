@@ -340,6 +340,9 @@
                 // In real implementation: xswd.call('GetAddress')
                 document.getElementById('wallet-address').textContent = 'dero1q...pending';
 
+                // Check if owner — inject Admin link if so
+                checkAndInjectAdmin();
+
                 return;
             } catch (e) {
                 clog(`Failed: ${endpoint}`, 'warn');
@@ -359,6 +362,9 @@
         document.getElementById('wallet-address').textContent = 'dero1qy8z...demo';
         document.getElementById('submit-panel').style.opacity = '1';
         document.getElementById('submit-panel').style.pointerEvents = 'auto';
+
+        // Check if owner — inject Admin link if so
+        checkAndInjectAdmin();
     }
 
     // --- Generate App ID (SHA-256 hash as 64 hex chars) ---
@@ -454,6 +460,39 @@
     }
 
     function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // --- Check owner status and inject Admin link ---
+    async function checkAndInjectAdmin() {
+        /* Real implementation:
+        const ownerData = await fetch(CONFIG.NODE_RPC, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0', id: '1', method: 'DERO.GetSC',
+                params: { scid: CONFIG.SCID, code: false, variables: false, keysstring: ['owner'] }
+            })
+        }).then(r => r.json());
+        const scOwner = ownerData.result?.valuesstring?.[0];
+        const myAddr = walletAddress;  // from GetAddress
+        if (scOwner && myAddr && scOwner === myAddr) {
+            injectAdminLink();
+        }
+        */
+
+        // Demo: always inject for testing
+        injectAdminLink();
+    }
+
+    function injectAdminLink() {
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks && !navLinks.querySelector('a[href="admin.html"]')) {
+            const link = document.createElement('a');
+            link.href = 'admin.html';
+            link.style.color = 'var(--fire-red)';
+            link.textContent = 'Admin';
+            navLinks.appendChild(link);
+        }
+    }
 
     // --- Init ---
     document.addEventListener('DOMContentLoaded', () => {

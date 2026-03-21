@@ -365,28 +365,76 @@
 
         clog('Connecting to XSWD for admin auth...');
 
-        // In real implementation: connect XSWD, call GetAddress, then check against SC owner
-        /* Real flow:
-        const xswd = await connectXSWD();
-        const addr = await xswd.call('GetAddress');
-        const ownerData = await getSCData(['owner']);
-        if (addr !== ownerData[0]) {
-            errEl.textContent = 'Connected wallet is not the SC owner.';
-            errEl.style.display = 'block';
-            return;
+        let connected = false;
+
+        for (const endpoint of CONFIG.XSWD_ENDPOINTS) {
+            try {
+                clog(`Trying ${endpoint}...`);
+                const ws = new WebSocket(endpoint);
+                await new Promise((resolve, reject) => {
+                    ws.onopen = resolve;
+                    ws.onerror = reject;
+                    setTimeout(reject, 5000);
+                });
+
+                clog(`Connected to ${endpoint}`, 'success');
+                connected = true;
+
+                /* Real implementation:
+                // 1. Send handshake
+                const appId = ... ;
+                ws.send(JSON.stringify({
+                    id: appId, name: 'SolarTorrent Admin',
+                    description: 'Moderator panel — owner verification',
+                    url: window.location.origin
+                }));
+
+                // 2. Get wallet address
+                const myAddr = await xswdCall(ws, 'GetAddress', {});
+
+                // 3. Get SC owner
+                const ownerData = await getSCData(['owner']);
+                const scOwner = ownerData ? ownerData[0] : null;
+
+                // 4. Compare
+                if (!scOwner || myAddr !== scOwner) {
+                    clog('Access denied — wallet is not the SC owner', 'error');
+                    errEl.textContent = 'Access denied. The connected wallet (' + myAddr.substring(0,12) + '...) is not the owner of the SolarTorrent smart contract.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.querySelector('.btn-text').textContent = 'Try Again';
+                    ws.close();
+                    return;
+                }
+
+                clog('Owner verified: ' + myAddr.substring(0,12) + '...', 'success');
+                */
+
+                // Demo mode: simulate owner verified
+                clog('Owner authenticated (demo mode)', 'success');
+
+                document.getElementById('nav-status-dot').classList.add('connected');
+                document.getElementById('nav-status-text').textContent = 'Owner';
+                document.getElementById('auth-gate').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+
+                ws.close();
+                loadAllTorrents();
+                return;
+            } catch (e) {
+                clog(`Failed: ${endpoint}`, 'warn');
+            }
         }
-        */
 
-        // Demo mode: auto-authenticate
-        await new Promise(r => setTimeout(r, 1000));
-        clog('Owner authenticated (demo mode)', 'success');
-
-        document.getElementById('nav-status-dot').classList.add('connected');
-        document.getElementById('nav-status-text').textContent = 'Owner';
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('admin-content').style.display = 'block';
-
-        loadAllTorrents();
+        if (!connected) {
+            // No XSWD — demo fallback
+            clog('No XSWD available — demo mode', 'warn');
+            document.getElementById('nav-status-dot').classList.add('connected');
+            document.getElementById('nav-status-text').textContent = 'Demo';
+            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            loadAllTorrents();
+        }
     }
 
     // --- Load all torrents ---
