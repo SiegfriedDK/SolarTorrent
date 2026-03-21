@@ -253,6 +253,9 @@
                     <button class="solar-btn" id="btn-donate" style="border-color:var(--solar-gold);color:var(--solar-gold)">
                         <span class="btn-text">&#x2764; Donate DERO</span>
                     </button>
+                    <button class="solar-btn hidden" id="btn-delete-own" style="border-color:var(--error);color:var(--error);border-style:dashed">
+                        <span class="btn-text">&#x1F5D1; Delete my torrent</span>
+                    </button>
                     <button class="solar-btn secondary" id="btn-close-detail">
                         <span class="btn-text">Close</span>
                     </button>
@@ -365,6 +368,7 @@
     let searchQuery = '';
     let currentTorrent = null;
     let selectedReason = null;
+    let connectedAddress = '';  // Set after XSWD connect
 
     // --- Console ---
     function clog(msg, type = 'info') {
@@ -509,7 +513,7 @@
         const grid = document.getElementById('catalog-grid');
         grid.innerHTML = '';
 
-        // Show approved + pending (not removed)
+        // Show approved + pending (not removed/deleted)
         let filtered = allTorrents.filter(t => t.status === 0 || t.status === 1);
 
         if (activeFilter !== 'all') {
@@ -599,6 +603,22 @@
             statusEl.textContent = 'Pending';
             statusEl.style.color = 'var(--warning)';
         }
+
+        // Show delete button only if connected wallet is the submitter
+        const deleteBtn = document.getElementById('btn-delete-own');
+        if (connectedAddress && connectedAddress === t.submitter) {
+            deleteBtn.classList.remove('hidden');
+        } else {
+            deleteBtn.classList.add('hidden');
+        }
+
+        // Reset vote buttons
+        const valBtn = document.getElementById('btn-validate');
+        valBtn.disabled = false;
+        valBtn.querySelector('.btn-text').innerHTML = '&#x2713; Validate';
+        const invalBtn = document.getElementById('btn-invalidate');
+        invalBtn.disabled = false;
+        invalBtn.querySelector('.btn-text').innerHTML = '&#x2717; Invalidate';
 
         panel.scrollIntoView({ behavior: 'smooth' });
     }
@@ -703,6 +723,43 @@
         clog(`Donation of ${amount} DERO sent to uploader!`, 'success');
     }
 
+    // --- Delete own torrent ---
+    function deleteOwnTorrent() {
+        if (!currentTorrent) return;
+        if (!connectedAddress || connectedAddress !== currentTorrent.submitter) {
+            clog('Cannot delete: you are not the submitter of this torrent', 'error');
+            return;
+        }
+
+        const confirmed = confirm(
+            `Delete your torrent "${currentTorrent.title}"?\n\n` +
+            (currentTorrent.status === 0
+                ? 'Status is Pending — your 0.1 DERO deposit will be refunded.'
+                : 'Status is Approved — the torrent will be removed from the catalog.') +
+            '\n\nThis action cannot be undone.'
+        );
+        if (!confirmed) return;
+
+        clog(`DeleteOwnTorrent(${currentTorrent.id}) — "${currentTorrent.title}"`);
+
+        /* Real XSWD call:
+        await xswd.call('scinvoke', {
+            scid: CONFIG.SCID,
+            ringsize: 2,
+            sc_rpc: [
+                { name: 'entrypoint', datatype: 'S', value: 'DeleteOwnTorrent' },
+                { name: 'id', datatype: 'U', value: currentTorrent.id }
+            ]
+        });
+        */
+
+        // Demo: update locally
+        currentTorrent.status = 4;
+        document.getElementById('detail-panel').classList.add('hidden');
+        renderGrid();
+        clog(`Torrent "${currentTorrent.title}" deleted by submitter`, 'success');
+    }
+
     // --- Open magnet in torrent client ---
     function openInClient() {
         if (!currentTorrent || !currentTorrent.magnet) return;
@@ -769,6 +826,9 @@
 
         // Open in torrent client
         document.getElementById('btn-open-magnet').addEventListener('click', openInClient);
+
+        // Delete own torrent
+        document.getElementById('btn-delete-own').addEventListener('click', deleteOwnTorrent);
 
         // Support SolarTorrent
         document.getElementById('btn-support').addEventListener('click', openSupportModal);

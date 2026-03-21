@@ -195,6 +195,36 @@ Function RemoveTorrent(id Uint64) Uint64
 End Function
 
 
+// DeleteOwnTorrent: submitter can delete their own torrent
+// If still pending (status 0), deposit is refunded
+// If already approved (status 1), no refund (already refunded at approval)
+// Status is set to 4 (submitter-deleted)
+Function DeleteOwnTorrent(id Uint64) Uint64
+10  DIM status as Uint64
+20  DIM submitter as String
+    // Check torrent exists
+30  IF EXISTS("t_" + id + "_status") == 1 THEN GOTO 50
+40  RETURN 1
+    // Check signer is the submitter
+50  LET submitter = LOAD("t_" + id + "_submitter")
+60  IF submitter == SIGNER() THEN GOTO 80
+70  RETURN 1
+    // Check torrent is not already removed
+80  LET status = LOAD("t_" + id + "_status")
+90  IF status == 0 THEN GOTO 120
+100 IF status == 1 THEN GOTO 140
+110 RETURN 1
+    // Pending: refund deposit then delete
+120 SEND_DERO_TO_ADDRESS(SIGNER(), LOAD("deposit_amount"))
+130 GOTO 150
+    // Approved: no refund needed (already refunded), just delete
+140 STORE("approved_count", LOAD("approved_count") - 1)
+    // Set status to submitter-deleted
+150 STORE("t_" + id + "_status", 4)
+160 RETURN 0
+End Function
+
+
 // SetDeposit: owner adjusts the anti-spam deposit amount
 Function SetDeposit(amount Uint64) Uint64
 10  IF LOAD("owner") == SIGNER() THEN GOTO 30

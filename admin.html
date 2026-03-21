@@ -317,6 +317,7 @@
         if (s === 1) return 'approved';
         if (s === 2) return 'removed';
         if (s === 3) return 'owner-removed';
+        if (s === 4) return 'owner-removed';
         return 'pending';
     }
 
@@ -325,6 +326,7 @@
         if (s === 1) return 'Approved';
         if (s === 2) return 'Community Removed';
         if (s === 3) return 'Owner Removed';
+        if (s === 4) return 'Deleted by Submitter';
         return 'Unknown';
     }
 
@@ -459,7 +461,7 @@
     function updateCounts() {
         const pending = allTorrents.filter(t => t.status === 0).length;
         const approved = allTorrents.filter(t => t.status === 1).length;
-        const removed = allTorrents.filter(t => t.status === 2 || t.status === 3).length;
+        const removed = allTorrents.filter(t => t.status === 2 || t.status === 3 || t.status === 4).length;
         document.getElementById('count-pending').textContent = pending;
         document.getElementById('count-approved').textContent = approved;
         document.getElementById('count-removed').textContent = removed;
@@ -479,7 +481,7 @@
         } else if (activeStatus === 'approved') {
             filtered = allTorrents.filter(t => t.status === 1);
         } else {
-            filtered = allTorrents.filter(t => t.status === 2 || t.status === 3);
+            filtered = allTorrents.filter(t => t.status === 2 || t.status === 3 || t.status === 4);
         }
 
         // Sort: pending first (newest), then by time desc
@@ -530,7 +532,7 @@
                                 <span class="btn-text">&#x2717; Emergency Remove</span>
                             </button>
                         ` : ''}
-                        ${t.status === 2 || t.status === 3 ? `
+                        ${t.status === 2 || t.status === 3 || t.status === 4 ? `
                             <span style="color:var(--text-dim);font-size:0.8rem;font-style:italic">No actions available — torrent removed</span>
                         ` : ''}
                     </div>
