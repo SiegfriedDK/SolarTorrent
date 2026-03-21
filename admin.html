@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarTorrent | Moderator Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-hero { text-align: center; padding: var(--space-xl) 0 var(--space-lg); }
+        .admin-hero h1 {
+            font-size: 1.8rem; font-weight: 700;
+            color: var(--fire-red);
+            text-shadow: 0 0 15px var(--glow-fire);
+            margin-bottom: var(--space-sm);
+        }
+        .admin-hero p { color: var(--text-dim); font-size: 0.95rem; }
+
+        .auth-gate {
+            text-align: center;
+            padding: var(--space-2xl);
+        }
+        .auth-gate .lock-icon { font-size: 3rem; margin-bottom: var(--space-md); opacity: 0.5; }
+        .auth-gate p { color: var(--text-secondary); margin-bottom: var(--space-lg); }
+
+        /* Tab filters for status */
+        .status-tabs {
+            display: flex; gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: var(--space-sm);
+        }
+        .status-tab {
+            padding: var(--space-sm) var(--space-lg);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .status-tab:hover { color: var(--solar-orange); background: var(--bg-hover); }
+        .status-tab.active { color: var(--solar-gold); border-color: var(--border-active); background: var(--bg-hover); border-bottom: 2px solid var(--solar-orange); }
+        .status-tab .tab-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 22px; height: 22px;
+            background: rgba(255,136,0,0.15); border-radius: 11px;
+            font-size: 0.75rem; font-family: var(--font-mono);
+            margin-left: 6px; padding: 0 6px;
+            color: var(--solar-orange);
+        }
+        .status-tab.active .tab-count { background: rgba(255,170,0,0.25); color: var(--solar-gold); }
+
+        /* Admin torrent row */
+        .admin-list { display: flex; flex-direction: column; gap: var(--space-md); }
+
+        .admin-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            display: flex; gap: var(--space-lg);
+            align-items: flex-start;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-row::before {
+            content: '';
+            position: absolute; top: 0; left: 0;
+            width: 4px; height: 100%;
+        }
+        .admin-row.pending::before { background: var(--warning); }
+        .admin-row.approved::before { background: var(--success); }
+        .admin-row.removed::before { background: var(--error); }
+        .admin-row.owner-removed::before { background: var(--text-dim); }
+
+        .admin-row:hover { border-color: var(--border-active); }
+
+        .admin-row-body { flex: 1; min-width: 0; }
+
+        .admin-row-header {
+            display: flex; align-items: center; gap: var(--space-md);
+            margin-bottom: var(--space-sm); flex-wrap: wrap;
+        }
+        .admin-row-header h3 { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); }
+        .admin-row-header .row-cat {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+            padding: 2px 8px; border: 1px solid var(--border-dim); border-radius: 10px;
+            color: var(--solar-orange);
+        }
+        .admin-row-header .row-status {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+            padding: 2px 10px; border-radius: 10px; font-weight: 600;
+        }
+        .row-status.pending { background: rgba(255,204,0,0.15); color: var(--warning); border: 1px solid rgba(255,204,0,0.3); }
+        .row-status.approved { background: rgba(0,255,136,0.1); color: var(--success); border: 1px solid rgba(0,255,136,0.2); }
+        .row-status.removed { background: rgba(255,51,102,0.1); color: var(--error); border: 1px solid rgba(255,51,102,0.2); }
+        .row-status.owner-removed { background: rgba(136,119,102,0.1); color: var(--text-dim); border: 1px solid rgba(136,119,102,0.2); }
+
+        .admin-row-meta {
+            display: flex; gap: var(--space-lg); flex-wrap: wrap;
+            font-size: 0.8rem; color: var(--text-dim);
+            font-family: var(--font-mono);
+            margin-bottom: var(--space-sm);
+        }
+        .admin-row-meta .meta-hash { color: var(--solar-orange); opacity: 0.7; }
+
+        .admin-row-desc {
+            font-size: 0.85rem; color: var(--text-dim);
+            line-height: 1.5; margin-bottom: var(--space-sm);
+        }
+
+        .admin-row-votes {
+            display: flex; gap: var(--space-md); align-items: center;
+            font-size: 0.8rem; margin-bottom: var(--space-md);
+        }
+        .admin-row-votes .v-up { color: var(--success); font-family: var(--font-mono); }
+        .admin-row-votes .v-down { color: var(--error); font-family: var(--font-mono); }
+        .admin-row-votes .v-ratio { color: var(--solar-gold); font-family: var(--font-mono); }
+
+        .admin-row-magnet {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--text-dim); word-break: break-all;
+            padding: var(--space-sm); background: var(--bg-input);
+            border-radius: var(--radius-sm); margin-bottom: var(--space-md);
+            max-height: 40px; overflow: hidden;
+            transition: max-height 0.3s ease; cursor: pointer;
+        }
+        .admin-row-magnet:hover { max-height: 200px; }
+
+        .admin-row-actions {
+            display: flex; gap: var(--space-sm); flex-wrap: wrap;
+        }
+
+        .admin-row-submitter {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--text-dim); margin-bottom: var(--space-sm);
+        }
+
+        /* Confirm overlay */
+        .confirm-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 300;
+            align-items: center; justify-content: center;
+        }
+        .confirm-overlay.visible { display: flex; }
+        .confirm-box {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: var(--space-xl); max-width: 420px; width: 90%;
+        }
+        .confirm-box h3 { font-size: 1.1rem; margin-bottom: var(--space-md); }
+        .confirm-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-lg); line-height: 1.6; }
+        .confirm-actions { display: flex; gap: var(--space-md); }
+
+        @media (max-width: 768px) {
+            .admin-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Atmospheric layers -->
+    <div class="fire-bg"></div>
+    <div class="ember-grid"></div>
+    <div class="embers">
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+        <div class="ember-particle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="solar-nav">
+        <div class="nav-brand">
+            <span class="brand-text">SolarTorrent</span>
+        </div>
+        <div class="nav-links">
+            <a href="browse.html">Browse</a>
+            <a href="submit.html">Submit</a>
+            <a href="legal.html">Legal</a>
+            <a href="admin.html" class="active" style="color:var(--fire-red)">Admin</a>
+        </div>
+        <div class="wallet-indicator">
+            <span class="status-dot" id="nav-status-dot"></span>
+            <span id="nav-status-text">Disconnected</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-wide">
+
+        <div class="admin-hero">
+            <h1>Moderator Panel</h1>
+            <p>Owner-only access &mdash; manage torrent submissions, approve, reject, or emergency-remove entries.</p>
+        </div>
+
+        <!-- Auth Gate (shown when not connected or not owner) -->
+        <div id="auth-gate" class="auth-gate">
+            <div class="lock-icon">&#x1F512;</div>
+            <p>Connect your Engram wallet to verify ownership of the SolarTorrent smart contract.</p>
+            <button id="btn-admin-connect" class="solar-btn primary">
+                <span class="btn-text">Connect Wallet</span>
+            </button>
+            <p id="auth-error" style="color:var(--error);margin-top:var(--space-md);display:none"></p>
+        </div>
+
+        <!-- Admin Content (shown after auth) -->
+        <div id="admin-content" style="display:none">
+
+            <!-- Status Tabs -->
+            <div class="status-tabs">
+                <button class="status-tab active" data-status="pending">
+                    Pending <span class="tab-count" id="count-pending">0</span>
+                </button>
+                <button class="status-tab" data-status="approved">
+                    Approved <span class="tab-count" id="count-approved">0</span>
+                </button>
+                <button class="status-tab" data-status="removed">
+                    Removed <span class="tab-count" id="count-removed">0</span>
+                </button>
+                <button class="status-tab" data-status="all">
+                    All <span class="tab-count" id="count-all">0</span>
+                </button>
+            </div>
+
+            <!-- Torrent List -->
+            <div id="admin-list" class="admin-list"></div>
+
+            <div id="admin-empty" class="empty-state hidden">
+                <div class="empty-icon">&#x2600;</div>
+                <p>No torrents in this category.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Confirm Overlay -->
+    <div class="confirm-overlay" id="confirm-overlay">
+        <div class="confirm-box" id="confirm-box">
+            <h3 id="confirm-title">Confirm Action</h3>
+            <p id="confirm-message">Are you sure?</p>
+            <div class="confirm-actions">
+                <button class="solar-btn primary" id="btn-confirm-yes">
+                    <span class="btn-text">Confirm</span>
+                </button>
+                <button class="solar-btn secondary" id="btn-confirm-cancel">
+                    <span class="btn-text">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Console -->
+    <div id="console-panel" class="console-panel collapsed">
+        <div class="console-header" id="console-toggle">
+            <span>&#x25C8; Console</span>
+            <span class="toggle-icon">&#x25B2;</span>
+        </div>
+        <div class="console-content">
+            <div id="console-output"></div>
+        </div>
+    </div>
+
+    <script>
+    /* =========================================================
+       SolarTorrent — Moderator Panel
+       Owner-only. Approve / Reject / Emergency Remove.
+       ========================================================= */
+
+    const CONFIG = {
+        SCID: 'YOUR_DEPLOYED_SCID_HERE',
+        NODE_RPC: 'http://127.0.0.1:20000/json_rpc',
+        XSWD_ENDPOINTS: [
+            'ws://127.0.0.1:44326/xswd',
+            'ws://127.0.0.1:10103/xswd',
+            'ws://127.0.0.1:40403/xswd'
+        ]
+    };
+
+    let allTorrents = [];
+    let activeStatus = 'pending';
+    let pendingConfirmAction = null;
+
+    function clog(msg, type = 'info') {
+        const el = document.getElementById('console-output');
+        const line = document.createElement('div');
+        line.className = 'console-line ' + type;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        el.appendChild(line);
+        el.scrollTop = el.scrollHeight;
+    }
+
+    function formatBytes(bytes) {
+        if (!bytes || bytes === 0) return 'Unknown';
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    function formatDate(ts) {
+        if (!ts || ts === 0) return 'Unknown';
+        return new Date(ts * 1000).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function voteRatio(val, inval) {
+        if (inval === 0) return val > 0 ? '∞' : '--';
+        return (val / inval).toFixed(1);
+    }
+
+    function statusClass(s) {
+        if (s === 0) return 'pending';
+        if (s === 1) return 'approved';
+        if (s === 2) return 'removed';
+        if (s === 3) return 'owner-removed';
+        return 'pending';
+    }
+
+    function statusText(s) {
+        if (s === 0) return 'Pending';
+        if (s === 1) return 'Approved';
+        if (s === 2) return 'Community Removed';
+        if (s === 3) return 'Owner Removed';
+        return 'Unknown';
+    }
+
+    function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // --- SC Read ---
+    async function getSCData(keys) {
+        try {
+            const resp = await fetch(CONFIG.NODE_RPC, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0', id: '1', method: 'DERO.GetSC',
+                    params: { scid: CONFIG.SCID, code: false, variables: false, keysstring: keys }
+                })
+            });
+            const data = await resp.json();
+            return data.result && data.result.valuesstring ? data.result.valuesstring : null;
+        } catch (err) {
+            clog('RPC Error: ' + err.message, 'error');
+            return null;
+        }
+    }
+
+    // --- Auth ---
+    async function connectAdmin() {
+        const btn = document.getElementById('btn-admin-connect');
+        const errEl = document.getElementById('auth-error');
+        btn.disabled = true;
+        btn.querySelector('.btn-text').textContent = 'Connecting...';
+        errEl.style.display = 'none';
+
+        clog('Connecting to XSWD for admin auth...');
+
+        // In real implementation: connect XSWD, call GetAddress, then check against SC owner
+        /* Real flow:
+        const xswd = await connectXSWD();
+        const addr = await xswd.call('GetAddress');
+        const ownerData = await getSCData(['owner']);
+        if (addr !== ownerData[0]) {
+            errEl.textContent = 'Connected wallet is not the SC owner.';
+            errEl.style.display = 'block';
+            return;
+        }
+        */
+
+        // Demo mode: auto-authenticate
+        await new Promise(r => setTimeout(r, 1000));
+        clog('Owner authenticated (demo mode)', 'success');
+
+        document.getElementById('nav-status-dot').classList.add('connected');
+        document.getElementById('nav-status-text').textContent = 'Owner';
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+
+        loadAllTorrents();
+    }
+
+    // --- Load all torrents ---
+    async function loadAllTorrents() {
+        clog('Loading all torrents for admin...');
+
+        const meta = await getSCData(['torrent_count']);
+        if (!meta) {
+            clog('No SC — loading demo data', 'warn');
+            loadDemoData();
+            return;
+        }
+
+        const count = parseInt(meta[0]) || 0;
+        allTorrents = [];
+
+        for (let i = 0; i < count; i++) {
+            const p = 't_' + i + '_';
+            const keys = [p+'hash', p+'title', p+'desc', p+'cat', p+'magnet', p+'size', p+'submitter', p+'status', p+'time', p+'valcount', p+'invalcount'];
+            const v = await getSCData(keys);
+            if (v) {
+                allTorrents.push({
+                    id: i, hash: v[0]||'', title: v[1]||'Untitled', desc: v[2]||'',
+                    cat: v[3]||'other', magnet: v[4]||'', size: parseInt(v[5])||0,
+                    submitter: v[6]||'', status: parseInt(v[7])||0, time: parseInt(v[8])||0,
+                    valcount: parseInt(v[9])||0, invalcount: parseInt(v[10])||0
+                });
+            }
+        }
+
+        clog(`Loaded ${allTorrents.length} torrents`, 'success');
+        updateCounts();
+        renderList();
+    }
+
+    function loadDemoData() {
+        allTorrents = [
+            { id:0, hash:'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', title:'Big Buck Bunny (2008) — 4K Open Movie',
+              desc:'Blender Foundation open movie. Creative Commons licensed.', cat:'movies',
+              magnet:'magnet:?xt=urn:btih:a1b2c3d4e5f6...', size:5200000000, submitter:'dero1qy8z...abc1',
+              status:1, time:1706000000, valcount:34, invalcount:2 },
+            { id:1, hash:'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3', title:'Pioneer One — S01 Complete',
+              desc:'Award-winning sci-fi web series.', cat:'tvshows',
+              magnet:'magnet:?xt=urn:btih:b2c3d4e5f6...', size:3800000000, submitter:'dero1qy8z...abc2',
+              status:1, time:1706100000, valcount:22, invalcount:1 },
+            { id:2, hash:'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', title:'Sintel — Blender Open Movie',
+              desc:'Fantasy animated short.', cat:'animes',
+              magnet:'magnet:?xt=urn:btih:c3d4e5f6...', size:1400000000, submitter:'dero1qy8z...abc3',
+              status:0, time:1706200000, valcount:12, invalcount:0 },
+            { id:3, hash:'d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5', title:'Suspicious Upload #47',
+              desc:'This one has many invalidation reports.', cat:'other',
+              magnet:'magnet:?xt=urn:btih:d4e5f6a1...', size:900000000, submitter:'dero1qy8z...xyz1',
+              status:0, time:1706250000, valcount:2, invalcount:8 },
+            { id:4, hash:'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6', title:'Project Gutenberg — Top 100 Ebooks',
+              desc:'Public domain books.', cat:'ebooks',
+              magnet:'magnet:?xt=urn:btih:e5f6a1b2...', size:520000000, submitter:'dero1qy8z...abc5',
+              status:0, time:1706300000, valcount:8, invalcount:5 },
+            { id:5, hash:'f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1', title:'Removed Spam Entry',
+              desc:'Was community-removed.', cat:'other',
+              magnet:'magnet:?xt=urn:btih:f6a1b2c3...', size:100000, submitter:'dero1qy8z...spam1',
+              status:2, time:1706050000, valcount:0, invalcount:14 },
+            { id:6, hash:'a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3', title:'Owner-Removed Illegal Content',
+              desc:'Emergency removed by owner.', cat:'other',
+              magnet:'magnet:?xt=urn:btih:a2b3c4d5...', size:50000, submitter:'dero1qy8z...spam2',
+              status:3, time:1706060000, valcount:1, invalcount:3 }
+        ];
+        updateCounts();
+        renderList();
+    }
+
+    // --- Counts ---
+    function updateCounts() {
+        const pending = allTorrents.filter(t => t.status === 0).length;
+        const approved = allTorrents.filter(t => t.status === 1).length;
+        const removed = allTorrents.filter(t => t.status === 2 || t.status === 3).length;
+        document.getElementById('count-pending').textContent = pending;
+        document.getElementById('count-approved').textContent = approved;
+        document.getElementById('count-removed').textContent = removed;
+        document.getElementById('count-all').textContent = allTorrents.length;
+    }
+
+    // --- Render ---
+    function renderList() {
+        const list = document.getElementById('admin-list');
+        list.innerHTML = '';
+
+        let filtered;
+        if (activeStatus === 'all') {
+            filtered = [...allTorrents];
+        } else if (activeStatus === 'pending') {
+            filtered = allTorrents.filter(t => t.status === 0);
+        } else if (activeStatus === 'approved') {
+            filtered = allTorrents.filter(t => t.status === 1);
+        } else {
+            filtered = allTorrents.filter(t => t.status === 2 || t.status === 3);
+        }
+
+        // Sort: pending first (newest), then by time desc
+        filtered.sort((a, b) => b.time - a.time);
+
+        if (filtered.length === 0) {
+            document.getElementById('admin-empty').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('admin-empty').classList.add('hidden');
+
+        filtered.forEach(t => {
+            const sc = statusClass(t.status);
+            const row = document.createElement('div');
+            row.className = 'admin-row ' + sc;
+            row.innerHTML = `
+                <div class="admin-row-body">
+                    <div class="admin-row-header">
+                        <h3>${escapeHtml(t.title)}</h3>
+                        <span class="row-cat">${escapeHtml(t.cat)}</span>
+                        <span class="row-status ${sc}">${statusText(t.status)}</span>
+                    </div>
+                    <div class="admin-row-meta">
+                        <span class="meta-hash">${t.hash.substring(0,12)}...</span>
+                        <span>ID: ${t.id}</span>
+                        <span>${formatDate(t.time)}</span>
+                        <span>${formatBytes(t.size)}</span>
+                    </div>
+                    <div class="admin-row-submitter">Submitter: ${escapeHtml(t.submitter)}</div>
+                    <div class="admin-row-desc">${escapeHtml(t.desc)}</div>
+                    <div class="admin-row-votes">
+                        <span class="v-up">&#x2713; ${t.valcount} validations</span>
+                        <span class="v-down">&#x2717; ${t.invalcount} invalidations</span>
+                        <span class="v-ratio">Ratio: ${voteRatio(t.valcount, t.invalcount)}</span>
+                    </div>
+                    <div class="admin-row-magnet" title="Click to expand">${escapeHtml(t.magnet)}</div>
+                    <div class="admin-row-actions">
+                        ${t.status === 0 ? `
+                            <button class="solar-btn small" style="border-color:var(--success);color:var(--success)" onclick="confirmAction('approve', ${t.id})">
+                                <span class="btn-text">&#x2713; Approve</span>
+                            </button>
+                            <button class="solar-btn small" style="border-color:var(--error);color:var(--error)" onclick="confirmAction('reject', ${t.id})">
+                                <span class="btn-text">&#x2717; Reject</span>
+                            </button>
+                        ` : ''}
+                        ${t.status === 1 ? `
+                            <button class="solar-btn small" style="border-color:var(--error);color:var(--error)" onclick="confirmAction('remove', ${t.id})">
+                                <span class="btn-text">&#x2717; Emergency Remove</span>
+                            </button>
+                        ` : ''}
+                        ${t.status === 2 || t.status === 3 ? `
+                            <span style="color:var(--text-dim);font-size:0.8rem;font-style:italic">No actions available — torrent removed</span>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    // --- Confirm dialog ---
+    function confirmAction(action, id) {
+        const t = allTorrents.find(t => t.id === id);
+        if (!t) return;
+
+        const overlay = document.getElementById('confirm-overlay');
+        const titleEl = document.getElementById('confirm-title');
+        const msgEl = document.getElementById('confirm-message');
+        const yesBtn = document.getElementById('btn-confirm-yes');
+
+        if (action === 'approve') {
+            titleEl.textContent = 'Approve Torrent';
+            titleEl.style.color = 'var(--success)';
+            msgEl.innerHTML = `Approve <strong>"${escapeHtml(t.title)}"</strong>?<br><br>This will bypass community voting and immediately set the status to Approved. The 0.1 DERO deposit will be refunded to the submitter.`;
+            yesBtn.style.borderColor = 'var(--success)';
+            yesBtn.style.background = 'rgba(0,255,136,0.15)';
+            yesBtn.style.color = 'var(--success)';
+            document.getElementById('confirm-box').style.borderColor = 'var(--success)';
+        } else if (action === 'reject') {
+            titleEl.textContent = 'Reject Torrent';
+            titleEl.style.color = 'var(--error)';
+            msgEl.innerHTML = `Reject <strong>"${escapeHtml(t.title)}"</strong>?<br><br>This will set the status to Removed. The 0.1 DERO deposit will <strong>not</strong> be refunded — it stays in the smart contract.`;
+            yesBtn.style.borderColor = 'var(--error)';
+            yesBtn.style.background = 'rgba(255,51,102,0.15)';
+            yesBtn.style.color = 'var(--error)';
+            document.getElementById('confirm-box').style.borderColor = 'var(--error)';
+        } else if (action === 'remove') {
+            titleEl.textContent = 'Emergency Remove';
+            titleEl.style.color = 'var(--fire-red)';
+            msgEl.innerHTML = `Emergency remove <strong>"${escapeHtml(t.title)}"</strong>?<br><br>This torrent is currently <strong>Approved</strong> with ${t.valcount} validations. Removing it will override the community verdict. This action sets status to 3 (owner-removed).`;
+            yesBtn.style.borderColor = 'var(--fire-red)';
+            yesBtn.style.background = 'rgba(255,68,0,0.15)';
+            yesBtn.style.color = 'var(--fire-red)';
+            document.getElementById('confirm-box').style.borderColor = 'var(--fire-red)';
+        }
+
+        pendingConfirmAction = { action, id };
+        overlay.classList.add('visible');
+    }
+
+    function executeAction() {
+        if (!pendingConfirmAction) return;
+        const { action, id } = pendingConfirmAction;
+        const t = allTorrents.find(t => t.id === id);
+
+        document.getElementById('confirm-overlay').classList.remove('visible');
+
+        if (action === 'approve') {
+            clog(`ApproveTorrent(${id}) — "${t.title}"`, 'success');
+            /* Real XSWD:
+            await xswd.call('scinvoke', {
+                scid: CONFIG.SCID, ringsize: 2,
+                sc_rpc: [
+                    { name: 'entrypoint', datatype: 'S', value: 'ApproveTorrent' },
+                    { name: 'id', datatype: 'U', value: id }
+                ]
+            });
+            */
+            t.status = 1;
+
+        } else if (action === 'reject') {
+            clog(`RejectTorrent(${id}) — "${t.title}"`, 'success');
+            /* Real XSWD:
+            await xswd.call('scinvoke', {
+                scid: CONFIG.SCID, ringsize: 2,
+                sc_rpc: [
+                    { name: 'entrypoint', datatype: 'S', value: 'RejectTorrent' },
+                    { name: 'id', datatype: 'U', value: id }
+                ]
+            });
+            */
+            t.status = 2;
+
+        } else if (action === 'remove') {
+            clog(`RemoveTorrent(${id}) — emergency removal of "${t.title}"`, 'warn');
+            /* Real XSWD:
+            await xswd.call('scinvoke', {
+                scid: CONFIG.SCID, ringsize: 2,
+                sc_rpc: [
+                    { name: 'entrypoint', datatype: 'S', value: 'RemoveTorrent' },
+                    { name: 'id', datatype: 'U', value: id }
+                ]
+            });
+            */
+            t.status = 3;
+        }
+
+        updateCounts();
+        renderList();
+        pendingConfirmAction = null;
+    }
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+
+        document.getElementById('console-toggle').addEventListener('click', () => {
+            document.getElementById('console-panel').classList.toggle('collapsed');
+        });
+
+        document.getElementById('btn-admin-connect').addEventListener('click', connectAdmin);
+
+        // Status tabs
+        document.querySelectorAll('.status-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                activeStatus = this.dataset.status;
+                renderList();
+            });
+        });
+
+        // Confirm actions
+        document.getElementById('btn-confirm-yes').addEventListener('click', executeAction);
+        document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+            document.getElementById('confirm-overlay').classList.remove('visible');
+            pendingConfirmAction = null;
+        });
+        document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+            if (e.target === this) { this.classList.remove('visible'); pendingConfirmAction = null; }
+        });
+
+        clog('SolarTorrent Admin Panel — Ready');
+    });
+    </script>
+</body>
+</html>
